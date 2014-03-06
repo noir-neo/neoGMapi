@@ -44,33 +44,25 @@ ngm.global = window || global || this;
   ngm.stageResult = function(sendData) {
     _stageEndDate = ngm.getDate();
     
-    /*
-    if (sendData.getbadgeid != null) {
-      
-      var _achivementid = [];
-      var _achievementpoint = [];
-      var _achivementstatus = [];
-      var _achivementearneddate = [];
-      for (var i = 0; i < sendData.getbadgeid.length; i++) {
-        _achivementid.push(_badgeID[sendData.getbadgeid[i]]);
-        _achievementpoint.push(_badgePoint[sendData.getbadgeid[i]]);
-        _achivementstatus.push(true);
-        _achivementearneddate.push(ngm.getDate());
-      }
-      var achievementresult = {
-        achivementid: _achivementid,
-        achievementpoint: _achievementpoint,
-        achivementstatus: _achivementstatus,
-        achivementearneddate: _achivementearneddate,
-        };
+    var _getBadgeArr = [];
+    if (sendData.getbadgeid instanceof Array) {
+      _getBadgeArr = sendData.getbadgeid;
+    } else {
+      _getBadgeArr[0] = sendData.getbadgeid;
     }
-    sendData.achievementresult = achievementresult;
-    */
+      
     var _ac = [];
-    _ac[0] = _badgeID[sendData.getbadgeid];
-    _ac[1] = _badgePoint[sendData.getbadgeid];
-    _ac[2] = true;
-    _ac[3] = ngm.getDate();
+    for (var i = 0; i < _getBadgeArr.length; i++) {
+      if (!_badgeStatus[_getBadgeArr[i]]) {
+        _badgeStatus[_getBadgeArr[i]] = true;
+        _ac.push([
+          _badgeID[_getBadgeArr[i]],
+          _badgePoint[_getBadgeArr[i]],
+          true,
+          _stageEndDate
+          ]);
+      }
+    }
     sendData.achievementresult = _ac;
     _post(sendData);
   };
@@ -101,7 +93,9 @@ ngm.global = window || global || this;
   };
   
   /**
+   * @method
    * すべてはゲームレベルを取得するため
+   * @param {Function} callback
    */
   ngm._getGamelevelCallback;
   ngm.getGamelevel = function(callback) {
@@ -126,11 +120,13 @@ ngm.global = window || global || this;
   ngm.contentsAchievementCallback = function(data) {
     _badgeID = data.achievementid;
     _badgePoint = data.achievementpoint;
-    _getBadgeInfo = data.achivementstatus;
-    console.log(_badgeID);
+    _badgeStatus = data.achievementstatus;
   };
   
   
+  /*--------------------
+   * 以下、魔界
+   --------------------*/
   
   /**
    * GetRequest
@@ -150,7 +146,6 @@ ngm.global = window || global || this;
    * 同上、闇中の闇
    */
   var _post = function(data) {
-console.log(data.achievementresult);
     // POST先のURLを生成
       var uri = _URI+"activity/"+_ApiParams['version']+'/'+_ApiParams['gameId']+'/'+_ApiParams['userId']+"/@gameresult";
 
