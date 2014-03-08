@@ -3,7 +3,7 @@
  * neogm.js 0.1.0
  * 
  * WTFPL
- * (s) 2014 neo.
+ * (c) 2014 neo.
  * 
  ====================*/
 
@@ -33,7 +33,7 @@ ngm.global = window || global || this;
   };
   
   ngm.getHiscore = function() {
-    return _ApiParams.hiscore;
+    return _ApiParams.hiscore || 0;
   };
   
   /**
@@ -42,29 +42,30 @@ ngm.global = window || global || this;
    * @param {Object} sendData
    */
   ngm.stageResult = function(sendData) {
+    
     _stageEndDate = ngm.getDate();
     
-    var _getBadgeArr = [];
-    if (sendData.getbadgeid instanceof Array) {
-      _getBadgeArr = sendData.getbadgeid;
-    } else {
-      _getBadgeArr[0] = sendData.getbadgeid;
-    }
-      
-    var _ac = [];
-    for (var i = 0; i < _getBadgeArr.length; i++) {
-      if (!_badgeStatus[_getBadgeArr[i]]) {
-        _badgeStatus[_getBadgeArr[i]] = true;
-        _ac.push([
-          _badgeID[_getBadgeArr[i]],
-          _badgePoint[_getBadgeArr[i]],
-          true,
-          _stageEndDate
-          ]);
+    if (sendData.getbadgeid !== undefined) {
+      var _getBadgeArr = [];
+      if (sendData.getbadgeid instanceof Array) {
+        _getBadgeArr = sendData.getbadgeid;
+      } else {
+        _getBadgeArr[0] = sendData.getbadgeid;
       }
+
+      var _ac = [];
+      for (var i = 0; i < _getBadgeArr.length; i++) {
+        if (!_badgeStatus[_getBadgeArr[i]]) {
+          _badgeStatus[_getBadgeArr[i]] = true;
+          _ac.push([_badgeID[_getBadgeArr[i]], _badgePoint[_getBadgeArr[i]], true, _stageEndDate]);
+        }
+      }
+      sendData.achievementresult = _ac;
     }
-    sendData.achievementresult = _ac;
+
+    
     _post(sendData);
+    
   };
   
   var _stageStartDate;
@@ -151,17 +152,19 @@ ngm.global = window || global || this;
 
       // 送信データの作成
       var param = {};
-      param['gametitle'] = '';
+      param['gametitle'] = data.gametitle || '';
       param['playid'] = _ApiParams['playId'];
       param['gamestartdate'] = _stageStartDate;
       param['gamelevel'] = data.gamelevel;
       param['resultscore'] = data.score;
       param['scoreearneddate'] = _stageEndDate;
-      param['achievementresult'] = data.achievementresult;
+      param['achievementresult'] = data.achievementresult || '';
       param['gameenddate'] = _stageEndDate;
-      param['tryerrorcount'] = 0;
-      param['mathscore'] = 0;
+      param['tryerrorcount'] = data.tryerrorcount || 0;
       param['mathtime'] = (_stageEndDate - _stageStartDate)/1000;
+      param['mathoption'] = data.mathoption || 0;
+      param['previoushandling'] = data.previoushandling || false;
+      param['browsehelp'] = data.browsehelp || false;
 
       // パラメータが設定されている事を確認
       if (param !== undefined) {
