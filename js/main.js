@@ -30,5 +30,8 @@ setInterval(function() {
     previoushandling: false,
     browsehelp: false,
     });
+    
+    // 再プレイ時にまた呼ぶ
+    ngm.stageStart();
 
 }, 10000); 

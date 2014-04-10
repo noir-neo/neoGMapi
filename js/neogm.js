@@ -57,7 +57,7 @@ ngm.global = window || global || this;
       for (var i = 0; i < _getBadgeArr.length; i++) {
         if (!_badgeStatus[_getBadgeArr[i]]) {
           _badgeStatus[_getBadgeArr[i]] = true;
-          _ac.push([_badgeID[_getBadgeArr[i]], _badgePoint[_getBadgeArr[i]], true, _stageEndDate]);
+          _ac.push([_badgeID[_getBadgeArr[i]], _badgePoint[_getBadgeArr[i]], true, _stageEndDate.str]);
         }
       }
       sendData.achievementresult = _ac;
@@ -68,8 +68,8 @@ ngm.global = window || global || this;
     
   };
   
-  var _stageStartDate;
-  var _stageEndDate;
+  var _stageStartDate = {};
+  var _stageEndDate = {};
   ngm.stageStart = function() {
     _stageStartDate = ngm.getDate();
   };
@@ -154,17 +154,19 @@ ngm.global = window || global || this;
       var param = {};
       param['gametitle'] = data.gametitle || '';
       param['playid'] = _ApiParams['playId'];
-      param['gamestartdate'] = _stageStartDate;
+      param['gamestartdate'] = _stageStartDate.str;
       param['gamelevel'] = data.gamelevel;
       param['resultscore'] = data.score;
-      param['scoreearneddate'] = _stageEndDate;
+      param['scoreearneddate'] = _stageEndDate.str;
       param['achievementresult'] = data.achievementresult || '';
-      param['gameenddate'] = _stageEndDate;
+      param['gameenddate'] = _stageEndDate.str;
       param['tryerrorcount'] = data.tryerrorcount || 0;
-      param['mathtime'] = (_stageEndDate - _stageStartDate)/1000;
+      param['mathtime'] = (_stageEndDate.date - _stageStartDate.date)/1000;
       param['mathoption'] = data.mathoption || 0;
       param['previoushandling'] = data.previoushandling || false;
       param['browsehelp'] = data.browsehelp || false;
+      
+      //console.log(param);
 
       // パラメータが設定されている事を確認
       if (param !== undefined) {
@@ -226,8 +228,10 @@ ngm.global = window || global || this;
   
   ngm.getDate = function () {
     var _Date = new Date();
-    return _Date.getFullYear() + '-' + ( _Date.getMonth  () + 1 ) + '-' + _Date.getDate   () + ' ' + 
+    var str = _Date.getFullYear() + '-' + ( _Date.getMonth  () + 1 ) + '-' + _Date.getDate   () + ' ' + 
     _Date.getHours   () + ':' +   _Date.getMinutes()       + ':' + _Date.getSeconds();
+    
+    return {str: str, date: _Date};
   };
   
   
